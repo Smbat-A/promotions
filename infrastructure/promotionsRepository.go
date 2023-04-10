@@ -19,7 +19,7 @@ type Promotion struct {
 func InitDataLayer() *mongo.Client {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:30001,localhost:30002,localhost:30003/?replicaSet=my-replica-set"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://mongo1:30001,mongo2:30002,mongo3:30003/?replicaSet=my-replica-set"))
 	if err != nil {
 		log.Fatal(err)
 	} else {
