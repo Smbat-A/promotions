@@ -66,8 +66,13 @@ func (verveGroup *VerveGroup) getPromotionByID(w http.ResponseWriter, r *http.Re
 func bgTask(client *mongo.Client) {
 	ticker := time.NewTicker(30 * time.Minute)
 	for _ = range ticker.C {
+		
+		path, err := os.Getwd()
+		if err != nil {
+			log.Println(err)
+		}
 
-		file, err := os.Open("C:\\Users\\Niax\\GolandProjects\\taskProject\\promotions.csv")
+		file, err := os.Open(path + "/promotions.csv")
 		if err != nil {
 			log.Fatalf("Failed to open CSV file: %v", err)
 		}
