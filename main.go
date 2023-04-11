@@ -200,7 +200,6 @@ func ProcessChunk(chunk []byte, linesPool *sync.Pool, stringPool *sync.Pool, cli
 					ExpirationDate: recordSlice[2],
 				}
 				promotions = append(promotions, promotion)
-				log.Println(promotion)
 
 			}
 			infrastructure.AddPromotions(promotions, client)
