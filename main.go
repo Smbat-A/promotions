@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"encoding/json"
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,16 +22,15 @@ type VerveGroup struct {
 }
 
 func main() {
-	client := infrastructure.InitDataLayer()
+	primeClient := infrastructure.InitPrimeDataLayer()
 
-	add(client)
-	go bgTask(client)
+	go add(primeClient)
+	go bgTask(primeClient)
 
 	verveGroup := &VerveGroup{client: infrastructure.InitDataLayer()}
 	http.HandleFunc("/promotions/", verveGroup.getPromotionByID)
 	log.Fatal(http.ListenAndServe(":8080", nil))
-
-	defer client.Disconnect(context.Background())
+	
 }
 
 func (verveGroup *VerveGroup) getPromotionByID(w http.ResponseWriter, r *http.Request) {
@@ -62,12 +60,13 @@ func (verveGroup *VerveGroup) getPromotionByID(w http.ResponseWriter, r *http.Re
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(promotionJSON)
+
 }
 
 func bgTask(client *mongo.Client) {
 	ticker := time.NewTicker(30 * time.Minute)
 	for _ = range ticker.C {
-		
+
 		path, err := os.Getwd()
 		if err != nil {
 			log.Println(err)
@@ -81,6 +80,22 @@ func bgTask(client *mongo.Client) {
 		infrastructure.DeletePromotionsCollection(client)
 		Process(file, client)
 	}
+}
+
+func add(client *mongo.Client) {
+
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+
+	file, err := os.Open(path + "/promotions.csv")
+	if err != nil {
+		log.Fatalf("Failed to open CSV file: %v", err)
+	}
+	defer file.Close()
+	infrastructure.DeletePromotionsCollection(client)
+	Process(file, client)
 }
 
 func Process(f *os.File, client *mongo.Client) error {
@@ -191,20 +206,4 @@ func ProcessChunk(chunk []byte, linesPool *sync.Pool, stringPool *sync.Pool, cli
 
 	wg2.Wait()
 	recordsSlice = nil
-}
-
-func add(client *mongo.Client) {
-
-	path, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-	}
-
-	file, err := os.Open(path + "/promotions.csv")
-	if err != nil {
-		log.Fatalf("Failed to open CSV file: %v", err)
-	}
-	defer file.Close()
-	infrastructure.DeletePromotionsCollection(client)
-	Process(file, client)
 }
