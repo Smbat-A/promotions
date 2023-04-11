@@ -25,6 +25,7 @@ type VerveGroup struct {
 func main() {
 	client := infrastructure.InitDataLayer()
 
+	add(client)
 	go bgTask(client)
 
 	verveGroup := &VerveGroup{client: infrastructure.InitDataLayer()}
@@ -190,4 +191,20 @@ func ProcessChunk(chunk []byte, linesPool *sync.Pool, stringPool *sync.Pool, cli
 
 	wg2.Wait()
 	recordsSlice = nil
+}
+
+func add(client *mongo.Client) {
+
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+
+	file, err := os.Open(path + "/promotions.csv")
+	if err != nil {
+		log.Fatalf("Failed to open CSV file: %v", err)
+	}
+	defer file.Close()
+	infrastructure.DeletePromotionsCollection(client)
+	Process(file, client)
 }
