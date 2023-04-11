@@ -64,7 +64,7 @@ func (verveGroup *VerveGroup) getPromotionByID(w http.ResponseWriter, r *http.Re
 func bgTask() {
 
 	prepareToProcess()
-	ticker := time.NewTicker(30 * time.Minute)
+	ticker := time.NewTicker(5 * time.Minute)
 	for _ = range ticker.C {
 		prepareToProcess()
 	}
@@ -73,6 +73,7 @@ func bgTask() {
 func prepareToProcess() {
 
 	client := infrastructure.InitPrimeDataLayer()
+	defer infrastructure.CloseClient(client)
 	path, err := os.Getwd()
 	if err != nil {
 		log.Println(err)
@@ -98,8 +99,7 @@ func prepareToProcess() {
 				log.Fatal("Failed to Remove CSV file: %v", err)
 			}
 		}(file)
-	}
-	defer infrastructure.CloseClient(client)
+	}	
 }
 
 func Process(f *os.File, client *mongo.Client) error {
