@@ -2,13 +2,14 @@
 
 ## Overview
 
-A Simple program that receive promotions.csv file and store objects in mongoDb.
-Program use `bufio.NewReader` for process big files. As CSV file is immutable, the program erase mongoDb storage and store new file(if exists) every 30 minutes.
+A Simple program that receives promotions.csv file and stores objects in mongoDb.
+Program use `bufio.NewReader` for processing big files. As CSV file is immutable, the program erases mongoDb storage and stores new file(if exists) every 30 minutes.
 Also program use mongoDb replication.
-By given ID the endpoint return the object, otherwise, return not found.
+By given ID the endpoint returns the object, otherwise, return not found.
 
 Ex.
 curl http://localhost:8080/promotions/172FFC14-D229-4C93-B06B-F48B8C09551
+
 {"id":"172FFC14-D229-4C93-B06B-F48B8C095512", "price":9.68,
 "expiration_date": "2022-06-04 06:01:20"}
 
